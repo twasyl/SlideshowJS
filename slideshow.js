@@ -1,15 +1,7 @@
-/**
- * Represent a Slide object.
- */
 function Slide(domElement) {
 	this.domElement = domElement;
+	this.originalDisplay = this.domElement.style.display;
 
-    /**
-      * Get the ID of the silde. The ID is represented by the
-      * ID attribute of the HTML element corresponding to the
-      * slide. If the HTML element is undefined, undefined
-      * will be returned by this function.
-      */
 	this.getID = function() {
 		var id = undefined;
 
@@ -20,12 +12,6 @@ function Slide(domElement) {
 		return id;
 	};
 
-	/**
-	  * Hides the slide. If the slide is currently visible,
-	  * then the style "display: none" and "opacity: 0" is
-	  * set to the HTML element of the slide. Otherwise
-	  * nothing is done on the slide.
-	  */
 	this.hide = function() {
 		if(this.isVisible()) {
 			this.domElement.style.display = "none";
@@ -33,14 +19,6 @@ function Slide(domElement) {
 		}
 	};
 
-	/**
-	  * Shows the slide. If the slide is currently hidden,
-	  * then the style "display: block" and "opacity: 1" is
-	  * set to the HTML element of the side. Otherwise
-	  * nothing is done on the slide.
-	  * If the slide is shown by this method, an event called
-	  * "slideShowing" is raised.
-	  */
 	this.show = function() {
 		if(this.isHidden()) {
 			this.domElement.style.display = "block";
@@ -51,39 +29,18 @@ function Slide(domElement) {
 		}
 	};
 
-	/**
-	  * Determine if the silde is currently visible.
-	  */
 	this.isVisible = function() {
 		return !this.isHidden();
 	};
 
-	/**
-	  * Determine if the slide is currently hidden by checking
-	  * that it's display is equal to "none".
-	  */
 	this.isHidden = function() {
 		return this.domElement.style.display === "none";
 	};
 
-	/**
-	  * Allow to define an action performed when the slide
-	  * is shown by listening to an event named "slideShowing".
-	  * @param e 
-	  *			 A function that will be called when the slide
-	  *			 is shown.
-	  */
 	this.onShow = function(e) {
 		this.domElement.addEventListener('slideShowing', e);
 	};
 
-	/**
-	  * Allow to define an action performed when the slide
-	  * is hidden by listening to an event named "slideHiding".
-	  * @param e 
-	  *			 A function that will be called when the slide
-	  *			 is hiding.
-	  */
 	this.onHide = function(e) {
 		this.domElement.addEventListener('slideHiding', e);	
 	};
@@ -94,7 +51,7 @@ function Slideshow() {
 		_this : this,
 
 		slides : function() {
-			return document.querySelectorAll("#slides>section.slide");
+			return document.querySelectorAll("#slides>.slide");
 		},
 
 		currentSlideIndex : undefined,
@@ -200,6 +157,18 @@ function Slideshow() {
 
 		onSlideChanged : function(e) {
 			document.getElementById("slides").addEventListener('slidechangedevent', e);
+		},
+
+		adjustSlideSize : function() {
+			var slidesDiv = document.getElementById("slides");
+			slidesDiv.style.height = "auto";
+			slidesDiv.style.width = "auto";
+      		slidesDiv.style.height = slidesDiv.getBoundingClientRect().height + 'px';
+      		slidesDiv.style.width = slidesDiv.getBoundingClientRect().width + 'px';
+		},
+
+		enableSlidesAdjustement : function() {
+			window.addEventListener("resize", this.adjustSlideSize);
 		}
 	};
 
@@ -241,6 +210,8 @@ function Slideshow() {
 
 		if(!printMode) {
 			new Slide(slide).hide();
+		} else {
+			slide.style.transform = "scale(1)";
 		}
 	}
 
@@ -256,9 +227,8 @@ function Slideshow() {
 	}
 
 	if(!printMode) {
+		Slideshow.enableSlidesAdjustement();
 		Slideshow.goToSlide(initialSlide);
-	} else {
-		slide.style.transform = "scale(1)";
 	}
 
 	return Slideshow;
