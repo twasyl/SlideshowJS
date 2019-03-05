@@ -1,4 +1,4 @@
-// SlideshowJS 0.3
+// SlideshowJS 0.4
 function Slide(domElement) {
 	this.domElement = domElement;
 	this.originalDisplay = this.domElement.style.display;
@@ -287,6 +287,53 @@ function Slideshow(config) {
 				arrowDown.style.display = 'none';
 				arrowUp.style.display = 'none';
 			}
+		},
+
+		start: function() {
+			var printMode = window.location.search.match( /print=true/gi );
+			var displayNavigation = config && config.navigation;
+
+			// Put transition
+			var allSlides = Slideshow.slides();
+			allSlides.forEach(slide => {
+				slide.style("transition", "opacity 500ms ease");
+
+				if (!printMode) {
+					slide.hide();
+
+					if (displayNavigation) { 
+						slide.onShow(event => Slideshow.updateNavigationDisplay(event.detail.slide));
+						
+						if (slide.hasNestedSlides()) {
+							var nestedSlide = slide.firstNestedSlide();
+
+							do {
+								nestedSlide.onShow(event => Slideshow.updateNavigationDisplay(event.detail.slide));
+								nestedSlide = nestedSlide.nextSlide(true);
+							} while (nestedSlide);
+						}
+					}
+
+				} else {
+					slide.style("transform", "scale(1)");
+				}
+			});
+
+			var slideParamName = "slide=";
+			var hash = window.location.hash;
+			var slideHashIndex = hash.indexOf(slideParamName);
+
+			var initialSlide = Slideshow.firstSlide();
+
+			if(slideHashIndex !== -1) {
+				var slideIndex = hash.substring(slideHashIndex + slideParamName.length);
+				initialSlide = Slideshow.slideById(slideIndex);
+			}
+
+			if(!printMode) {
+				Slideshow.enableSlidesAdjustement();
+				Slideshow.goToSlide(initialSlide);
+			}
 		}
 	};
 
@@ -316,51 +363,7 @@ function Slideshow(config) {
 		}
 	});
 
-	var printMode = window.location.search.match( /print=true/gi );
-	var displayNavigation = config && config.navigation;
-
-	// Populate slide IDs and put transition
-	var allSlides = Slideshow.slides();
-	allSlides.forEach(slide => {
-		slide.checkID();
-		slide.style("transition", "opacity 500ms ease");
-
-		if (!printMode) {
-			slide.hide();
-
-			if (displayNavigation) { 
-				slide.onShow(event => Slideshow.updateNavigationDisplay(event.detail.slide));
-				
-				if (slide.hasNestedSlides()) {
-					var nestedSlide = slide.firstNestedSlide();
-
-					do {
-						nestedSlide.onShow(event => Slideshow.updateNavigationDisplay(event.detail.slide));
-						nestedSlide = nestedSlide.nextSlide(true);
-					} while (nestedSlide);
-				}
-			}
-
-		} else {
-			slide.style("transform", "scale(1)");
-		}
-	});
-
-	var slideParamName = "slide=";
-	var hash = window.location.hash;
-	var slideHashIndex = hash.indexOf(slideParamName);
-
-	var initialSlide = Slideshow.firstSlide();
-
-	if(slideHashIndex !== -1) {
-		var slideIndex = hash.substring(slideHashIndex + slideParamName.length);
-		initialSlide = Slideshow.slideById(slideIndex);
-	}
-
-	if(!printMode) {
-		Slideshow.enableSlidesAdjustement();
-		Slideshow.goToSlide(initialSlide);
-	}
-
+	// Populate slide IDs
+	Slideshow.slides().forEach(slide => slide.checkID());
 	return Slideshow;
 }

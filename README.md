@@ -21,6 +21,7 @@ Then, at the end of your body, add the following JS snippet:
   <body>
     <script type="text/javascript" charset="utf-8">
       slideshow = Slideshow();
+      slideshow.start();
     </script>
   </body>
 </html>
@@ -44,6 +45,7 @@ All slides must be a child of an element with the ID **slides** and be an elemen
     </div>
     <script type="text/javascript" charset="utf-8">
       slideshow = Slideshow();
+      slideshow.start();
     </script>
   </body>
 </html>
@@ -83,6 +85,7 @@ Then when instantiating the slideshow, define to use navigation :
 ```html
 <script type="text/javascript" charset="utf-8">
   slideshow = Slideshow({ navigation : true });
+  slideshow.start();
 </script>
 ```
 
@@ -108,6 +111,7 @@ Then when instantiating the slideshow, define to use navigation :
     </div>
     <script type="text/javascript" charset="utf-8">
       slideshow = Slideshow({ navigation : true });
+      slideshow.start();
     </script>
   </body>
 </html>
